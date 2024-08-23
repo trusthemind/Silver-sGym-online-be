@@ -1,21 +1,22 @@
-import { Client } from "pg";
+import mongoose from "mongoose";
 
-const Connect = () => {
-    const client = new Client({
-        user: process.env.PG_USER,
-        host: process.env.PG_HOST,
-        database: process.env.PG_DATABASE,
-        password: process.env.PG_PASSWORD,
-        port: Number(process.env.PG_PORT),
-    });
+export const Connect = async () => {
+    const dbUri = process.env.DB_URL ?? "";
 
-    client.connect((err: Error) => {
-        if (err) {
-            console.log("Connection error", err);
-            throw err;
-        }
-        console.log("Connected to database");
-    });
+    try {
+        await mongoose.connect(dbUri);
+        console.log("Connected to DB");
+    } catch (error) {
+        console.error("Failed to connect to DB", error);
+        process.exit();
+    }
 };
 
-export { Connect };
+export const Disconnect = async () => {
+    try {
+        await mongoose.disconnect();
+        console.log("Disconnected from DB");
+    } catch (error) {
+        console.error("Failed to disconnect from DB", error);
+    }
+};
