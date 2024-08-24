@@ -3,8 +3,9 @@ import { config } from "dotenv";
 import { Connect } from "./src/initializers/connect";
 import authRoutes from "./src/router/auth";
 import uploadRoute from "./src/router/upload";
+import cardRoute from "./src/router/card";
 import CategoryRoutes from "./src/router/category";
-import itemsController from "./src/router/items";
+import itemRoutes from "./src/router/items";
 import path from "path";
 config();
 
@@ -43,4 +44,5 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/uploads", uploadRoute);
 app.use("/auth", authRoutes);
 app.use("/category", CategoryRoutes);
-app.use("/items", itemsController);
+app.use("/card", cardRoute);
+app.use("/items", itemRoutes);
