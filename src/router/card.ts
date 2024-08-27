@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/add", authMiddleware, cardController.add);
 router.get("/", authMiddleware, cardController.get);
 router.put("/update",authMiddleware,cardController.update)
-router.delete("/delete/:id",authMiddleware,cardController.update)
+router.delete("/delete/:itemId",authMiddleware,cardController.delete)
 
 export default router;

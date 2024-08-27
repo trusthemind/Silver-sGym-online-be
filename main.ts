@@ -7,10 +7,18 @@ import cardRoute from "./src/router/card";
 import CategoryRoutes from "./src/router/category";
 import itemRoutes from "./src/router/items";
 import path from "path";
+import cors from "cors";
 config();
 
 const app = express();
 const port = process.env.PORT ?? 3000;
+app.use(
+    cors({
+        origin: "http://localhost:3000", // Allow requests from this origin
+        methods: ["GET", "POST", "PUT", "DELETE"], // Allow these methods
+        allowedHeaders: ["Content-Type", "Authorization"], // Allow these headers
+    })
+);
 app.use(express.json());
 
 const init = async (app: express.Application) => {

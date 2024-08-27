@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import { CardModel } from "../models/card"; // Adjust the path as necessary
 import { SportItemModel } from "../models/items"; // Adjust the path as necessary
+import mongoose from "mongoose";
 
 export class CardController {
     // Add items to the card
@@ -48,12 +49,30 @@ export class CardController {
     // Get the card details
     async get(req: Request, res: Response): Promise<void> {
         try {
+            // Fetch the card with populated items
             const card = await CardModel.findOne().populate("items.item");
+
             if (!card) {
                 res.status(404).json({ message: "Card not found" });
                 return;
             }
-            res.status(200).json(card);
+
+            // Create a deep copy of the card object
+            const cardWithoutIds = card.toObject();
+
+            // Remove unwanted fields from each item and include id
+            (cardWithoutIds.items as any) = cardWithoutIds.items.map(
+                (item: any) => {
+                    return {
+                        _id: item._id, // Retain the id of the item
+                        ...item.item, // Spread the item details
+                        quantity: item.quantity, // Retain the quantity
+                    };
+                }
+            );
+
+            // Send the modified card object
+            res.status(200).json(cardWithoutIds);
         } catch (error) {
             console.error("Error retrieving card:", error);
             res.status(500).json({ message: "Internal server error" });
@@ -65,15 +84,17 @@ export class CardController {
         try {
             const { itemId, quantity } = req.body;
 
+            // Fetch the card with populated items
             const card = await CardModel.findOne();
             if (!card) {
                 res.status(404).json({ message: "Card not found" });
                 return;
             }
 
-            const itemToUpdate = card.items.find(
-                (item) => item.id.toString() === itemId
-            );
+            // Find the item to update
+            const itemToUpdate = card.items.find((item) => {
+                if (item._id) return item._id.toString() === itemId;
+            });
 
             if (!itemToUpdate) {
                 res.status(404).json({ message: "Item not found in card" });
@@ -88,8 +109,10 @@ export class CardController {
             }
 
             // Update the quantity and adjust the total price
-            card.totalPrice +=
-                (quantity - itemToUpdate.quantity) * sportItem.price;
+            const oldTotal = itemToUpdate.quantity * sportItem.price;
+            const newTotal = quantity * sportItem.price;
+            card.totalPrice += newTotal - oldTotal;
+
             itemToUpdate.quantity = quantity;
 
             await card.save();
@@ -104,15 +127,20 @@ export class CardController {
     async delete(req: Request, res: Response): Promise<void> {
         try {
             const { itemId } = req.params;
-
+            // Convert itemId to ObjectId
+            const itemObjectId = new mongoose.Types.ObjectId(itemId);
+            
+            // Find the card
             const card = await CardModel.findOne();
             if (!card) {
                 res.status(404).json({ message: "Card not found" });
                 return;
             }
-
+            
+            // Find the index of the item to delete
+            console.log(itemId, card.items)
             const itemIndex = card.items.findIndex(
-                (item) => item.item.toString() === itemId
+                (item) => item.item.toString() === itemObjectId.toString()
             );
 
             if (itemIndex === -1) {
@@ -120,17 +148,20 @@ export class CardController {
                 return;
             }
 
-            const sportItem = await SportItemModel.findById(itemId);
+            // Get the sport item
+            const sportItem = await SportItemModel.findById(itemObjectId);
             if (!sportItem) {
                 res.status(404).json({ message: "Sport item not found" });
                 return;
             }
 
+            // Update total price
             card.totalPrice -= card.items[itemIndex].quantity * sportItem.price;
 
-            // Remove the item from the card
+            // Remove the item
             card.items.splice(itemIndex, 1);
 
+            // Save the updated card
             await card.save();
             res.status(200).json(card);
         } catch (error) {
