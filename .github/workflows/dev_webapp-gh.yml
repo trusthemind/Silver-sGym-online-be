@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - silver-gym
+name: Build and deploy Node.js app to Azure Web App - webapp-gh
 
 on:
   push:
@@ -57,15 +57,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E8DE88B06B944EEE8EFDAA26EB66BA87 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_55B7D9549BDC43B7976A7E6C856EF9E7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F5E017B22A064C72B96F29F9F3720FEE }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4110EFC5847A43AC9BAF57401F4582A0 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_37C92F5970DA487CBA0CA4969BA74C25 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_819A2A196EAF463B8BF2A515F6156D15 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'silver-gym'
+          app-name: 'webapp-gh'
           slot-name: 'Production'
           package: .
           
