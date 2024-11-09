@@ -36,7 +36,7 @@ const init = async (app: express.Application) => {
 
 init(app);
 
-app.get("/", (_, res) => res.send("Service for online shop of sport items"));
+app.get("/", (_, res) => res.send("Online service of sports items shop"));
 app.use(
     (
         err: any,
